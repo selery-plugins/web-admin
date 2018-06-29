@@ -1,0 +1,11 @@
+body {
+	text-align: center;
+}
+
+img {
+	cursor: pointer;
+	position: absolute;
+	width: 32px;
+	height: 32px;
+	right: 32px;
+}

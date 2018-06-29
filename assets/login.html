@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>{{ web.login.title }}</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<link rel="icon" type="image/png" href="//i.imgur.com/uxvZbau.png" />
+		<link rel="stylesheet" type="text/css" href="//db.onlinewebfonts.com/c/bf3f245b7cd53caea0cb07d265a64adc?family=Minecraftia" />
+		<link rel="stylesheet" type="text/css" href="/main.css" />
+		<style>$STYLE</style>
+		<script>
+			const WRONG_PASSWORD = "{{ web.login.wrongPassword }}";
+			const LIMIT_REACHED = "{{ web.login.limitReached }}";
+			const NETWORK_ERROR = "{{ web.login.networkError }}";
+			const UNKNOWN_ERROR = "{{ web.login.unknownError }}";
+			$SCRIPT
+		</script>
+	</head>
+	<body>
+		<div style="position:absolute;top:50%;left:50%;transform:translateX(-50%) translateY(-50%)">
+			<div id="login" class="outer_container">
+				<p class="title">{{ web.login.title }}</p>
+				<div class="outer_container" style="width:420px">
+					<div class="inner_container">
+						<p style="text-align:left;margin:0px 0px 8px 8px">{{ web.login.password }}</p>
+						<div class="outer_input">
+							<div class="inner_input" style="width:100%">
+								<span>&nbsp;</span>
+								<input id="password" type="password" style="position:absolute;left:44px" />
+								<img id="locked" src="res/lock_locked.png" onclick="unlock()" />
+								<img id="unlocked" style="display:none" src="res/lock_unlocked.png" onclick="lock()" />
+							</div>
+						</div>
+					</div>
+					<div class="outer_button" style="display:block;margin-top:7px" onclick="login()">
+						<div class="inner_button">{{ web.login.login }}</div>
+					</div>
+				</div>
+			</div>
+			<div id="loading" style="display:none">
+				<p id="loading_text">{{ web.login.loading }}</p>
+			</div>
+			<div id="error" class="outer_container" style="display:none;max-width:400px">
+				<p class="title">{{ web.login.failed }}</p>
+				<div class="inner_container">
+					<p id="error_text" style="margin:8px"></p>
+				</div>
+				<div class="outer_button" style="display:block;margin:7px">
+					<div class="inner_button" onclick="retry()">{{ web.login.goBack }}</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
