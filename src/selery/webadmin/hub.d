@@ -55,19 +55,18 @@ void startWebAdmin(shared HubServer server, shared Plugin plugin, immutable(Addr
 	foreach(address ; addresses) {
 		http.host(address.ip, address.port);
 	}
-	
-	while(true) http.eventLoop.loop();
+	http.loop();
 
 }
 
-class WebAdminRouter : Router {
+class WebAdminRouter {
 
 	private shared HubServer server;
 	private Plugin plugin;
 	
 	private string[string] sessions;
 	
-	Resource[string] login, admin; // cached for every supported language
+	Resource[string] login, admin; // for every supported language
 	
 	@Get("main.css") Resource main;
 	
@@ -81,8 +80,8 @@ class WebAdminRouter : Router {
 		string login = (cast(string)server.files.readPluginAsset(plugin, "login.html")).replace("$STYLE", cast(string)server.files.readPluginAsset(plugin, "css/login.css")).replace("$SCRIPT", cast(string)server.files.readPluginAsset(plugin, "js/login.js"));
 		string admin = (cast(string)server.files.readPluginAsset(plugin, "admin.html")).replace("$STYLE", cast(string)server.files.readPluginAsset(plugin, "css/admin.css")).replace("$SCRIPT", cast(string)server.files.readPluginAsset(plugin, "js/admin.js"));
 		foreach(lang ; server.config.lang.acceptedLanguages) {
-			this.login[lang] = new CachedResource("text/html", login);
-			this.admin[lang] = new CachedResource("text/html", admin);
+			this.login[lang] = new Resource("text/html", login);
+			this.admin[lang] = new Resource("text/html", admin);
 		}
 		this.main = new CachedResource("text/css", server.files.readPluginAsset(plugin, "css/main.css"));
 		this.bg = new CachedResource("image/png", server.files.readPluginAsset(plugin, "res/bg32.png"));
