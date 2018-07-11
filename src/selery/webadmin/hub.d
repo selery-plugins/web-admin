@@ -51,10 +51,11 @@ class Main : HubPlugin {
 
 void startWebAdmin(shared HubServer server, shared Plugin plugin, immutable(Address)[] addresses) {
 
-	auto http = new Server(new WebAdminRouter(server, cast()plugin));
+	auto http = new Server();
 	foreach(address ; addresses) {
 		http.host(address.ip, address.port);
 	}
+	http.router.add(new WebAdminRouter(server, cast()plugin));
 	http.loop();
 
 }

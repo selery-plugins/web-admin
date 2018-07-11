@@ -2,4 +2,3 @@ name = "web-admin"
 authors = ["sel-project"]
 hub-main = "selery.webadmin.hub.Main"
 node-main = "selery.webadmin.node.Main"
-dependencies.dub.lighttp = "~>0.2.0"
