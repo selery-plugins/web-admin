@@ -24,6 +24,7 @@ module selery.webadmin.hub;
 
 import std.concurrency : spawn;
 import std.random : uniform;
+import std.socket : SocketAddress = Address;
 import std.string : replace, startsWith, split;
 
 import selery.hub.plugin;
@@ -44,25 +45,24 @@ struct Address {
 class Main : HubPlugin {
 
 	@start onStart() {
-		spawn(&startWebAdmin, server, plugin, [Address("127.0.0.1", 19134)].idup);
+		startWebAdmin(server, plugin, [Address("127.0.0.1", 19134)].idup);
 	}
 
 }
 
-void startWebAdmin(shared HubServer server, shared Plugin plugin, immutable(Address)[] addresses) {
+void startWebAdmin(HubServer server, Plugin plugin, immutable(Address)[] addresses) {
 
-	auto http = new Server();
+	auto http = new Server(server.eventLoop);
 	foreach(address ; addresses) {
 		http.host(address.ip, address.port);
 	}
-	http.router.add(new WebAdminRouter(server, cast()plugin));
-	http.loop();
+	http.router.add(new WebAdminRouter(server, plugin));
 
 }
 
 class WebAdminRouter {
 
-	private shared HubServer server;
+	private HubServer server;
 	private Plugin plugin;
 	
 	private string[string] sessions;
@@ -75,7 +75,7 @@ class WebAdminRouter {
 	@Get("res", "lock_locked.png") Resource lockLocked;
 	@Get("res", "lock_unlocked.png") Resource lockUnlocked;
 	
-	this(shared HubServer server, Plugin plugin) {
+	this(HubServer server, Plugin plugin) {
 		this.server = server;
 		this.plugin = plugin;
 		string login = (cast(string)server.files.readPluginAsset(plugin, "login.html")).replace("$STYLE", cast(string)server.files.readPluginAsset(plugin, "css/login.css")).replace("$SCRIPT", cast(string)server.files.readPluginAsset(plugin, "js/login.js"));
@@ -90,13 +90,13 @@ class WebAdminRouter {
 		this.lockUnlocked = new CachedResource("image/png", server.files.readPluginAsset(plugin, "res/lock_unlocked.png"));
 	}
 	
-	@Get("") getIndex(NetworkAddress address, Request req, Response res) {
+	@Get("") getIndex(SocketAddress address, Request req, Response res) {
 		bool auth = false;
 		auto cookie = "cookie" in req.headers;
 		if(cookie) writeln(*cookie);
 		if(cookie && startsWith(*cookie, "key=")) {
 			auto ip = (*cookie)[4..$] in this.sessions;
-			if(ip && *ip == address.toAddressString()) auth = true;
+			if(ip && *ip == address.toAddrString()) auth = true;
 		}
 		writeln(auth);
 		// send login page or create a session
@@ -109,7 +109,7 @@ class WebAdminRouter {
 			this.login[this.getClientLanguage(req)].apply(req, res);
 		} else {
 			// not logged in, but password is not required
-			immutable key = this.addClient(address.toAddressString());
+			immutable key = this.addClient(address.toAddrString());
 			if(key.length) {
 				res.headers["Set-Cookie"] = "key=" ~ key;
 				this.admin[this.getClientLanguage(req)].apply(req, res);
